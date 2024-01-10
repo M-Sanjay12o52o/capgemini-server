@@ -26,6 +26,30 @@ interface AdminInterface {
   password: string;
 }
 
+interface JobInterface {
+  title: string;
+  description?: string;
+  company: string;
+  location: string;
+  requirements: string[];
+  responsibilities: string[];
+  createdAt: Date;
+  updatedAt?: Date;
+  isPublished: boolean;
+}
+
+const jobSchema = new Schema<JobInterface>({
+  title: { type: String, required: true },
+  description: { type: String },
+  company: { type: String, required: true },
+  location: { type: String, required: true },
+  requirements: [{ type: String, required: true }],
+  responsibilities: [{ type: String, required: true }],
+  createdAt: { type: Date, required: true, default: Date.now },
+  updatedAt: { type: Date },
+  isPublished: { type: Boolean, required: true, default: false },
+});
+
 const contactSchema = new Schema<ContactUser>({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
@@ -54,6 +78,8 @@ const Contact = model<ContactUser>("Contact", contactSchema);
 const User = model<UserInterface>("User", userSchema);
 
 const Admin = model<AdminInterface>("Admin", adminSchema);
+
+const JobModel = model<JobInterface>("Job", jobSchema);
 
 export async function saveUserToDatabase(user: ContactUser): Promise<void> {
   try {
@@ -138,5 +164,42 @@ export async function loginAdmin(
   } catch (error) {
     console.error("Error logging in admin:", error);
     throw new Error("Error logging in admin");
+  }
+}
+
+export async function createJob(
+  job: JobInterface
+): Promise<JobInterface | null> {
+  try {
+    await connect(process.env.MONGO_URL!);
+
+    // Create a new job using the Job model
+    const newJob = new JobModel(job);
+
+    // Save the new job to the database
+    const createdJob = await newJob.save();
+
+    console.log(`Job titled '${createdJob.title}' saved to the database.`);
+
+    return createdJob; // Return the created job
+  } catch (error) {
+    console.error("Error creating job:", error);
+    throw new Error("Error creating job");
+  }
+}
+
+export async function getJobs(): Promise<JobInterface[]> {
+  try {
+    await connect(process.env.MONGO_URL!);
+
+    // Retrieve all jobs using the JobModel
+    const allJobs = await JobModel.find({});
+
+    console.log(`Retrieved ${allJobs.length} jobs from the database.`);
+
+    return allJobs; // Return all retrieved jobs
+  } catch (error) {
+    console.error("Error getting jobs:", error);
+    throw new Error("Error getting jobs");
   }
 }

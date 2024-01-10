@@ -1,6 +1,17 @@
 import { Schema, model, connect } from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
+const jobSchema = new Schema({
+    title: { type: String, required: true },
+    description: { type: String },
+    company: { type: String, required: true },
+    location: { type: String, required: true },
+    requirements: [{ type: String, required: true }],
+    responsibilities: [{ type: String, required: true }],
+    createdAt: { type: Date, required: true, default: Date.now },
+    updatedAt: { type: Date },
+    isPublished: { type: Boolean, required: true, default: false },
+});
 const contactSchema = new Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -24,6 +35,7 @@ const adminSchema = new Schema({
 const Contact = model("Contact", contactSchema);
 const User = model("User", userSchema);
 const Admin = model("Admin", adminSchema);
+const JobModel = model("Job", jobSchema);
 export async function saveUserToDatabase(user) {
     try {
         await connect(process.env.MONGO_URL);
@@ -90,6 +102,34 @@ export async function loginAdmin(admin) {
     catch (error) {
         console.error("Error logging in admin:", error);
         throw new Error("Error logging in admin");
+    }
+}
+export async function createJob(job) {
+    try {
+        await connect(process.env.MONGO_URL);
+        // Create a new job using the Job model
+        const newJob = new JobModel(job);
+        // Save the new job to the database
+        const createdJob = await newJob.save();
+        console.log(`Job titled '${createdJob.title}' saved to the database.`);
+        return createdJob; // Return the created job
+    }
+    catch (error) {
+        console.error("Error creating job:", error);
+        throw new Error("Error creating job");
+    }
+}
+export async function getJobs() {
+    try {
+        await connect(process.env.MONGO_URL);
+        // Retrieve all jobs using the JobModel
+        const allJobs = await JobModel.find({});
+        console.log(`Retrieved ${allJobs.length} jobs from the database.`);
+        return allJobs; // Return all retrieved jobs
+    }
+    catch (error) {
+        console.error("Error getting jobs:", error);
+        throw new Error("Error getting jobs");
     }
 }
 //# sourceMappingURL=helper.js.map

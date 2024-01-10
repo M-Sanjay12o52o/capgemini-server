@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { createUser, loginAdmin, loginUser, saveUserToDatabase, } from "../helper.js";
+import { createJob, createUser, getJobs, loginAdmin, loginUser, saveUserToDatabase, } from "../helper.js";
 const app = express();
 const port = 3001;
 app.use(express.json());
@@ -80,6 +80,42 @@ app.post("/admin/login", async (req, res) => {
     }
     catch (error) {
         res.status(500).json({ error: "Failed to create user." });
+    }
+});
+// Handle POST request for creating job posting
+app.post("/admin/createjob", async (req, res) => {
+    const { title, description, company, location, requirements, responsibilities, createdAt, updatedAt, isPublished, } = req.body;
+    try {
+        // Construct an object to match the JobInterface
+        const job = {
+            title,
+            description,
+            company,
+            location,
+            requirements,
+            responsibilities,
+            createdAt,
+            updatedAt,
+            isPublished,
+        };
+        const createdJob = await createJob(job); // Pass the job object
+        res
+            .status(201)
+            .json({ message: "Job created successfully.", job: createdJob });
+    }
+    catch (error) {
+        res.status(500).json({ error: "Failed to create job." });
+    }
+});
+// Handle GET request to retrieve all jobs
+app.get("/jobs", async (req, res) => {
+    try {
+        // Call the function to get all jobs
+        const allJobs = await getJobs();
+        res.status(200).json(allJobs);
+    }
+    catch (error) {
+        res.status(500).json({ error: "Failed to retrieve jobs." });
     }
 });
 app.listen(port, () => {
