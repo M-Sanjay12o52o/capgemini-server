@@ -48,4 +48,48 @@ export async function createUser(user) {
         throw new Error("Error creating user");
     }
 }
+export async function loginUser(user) {
+    try {
+        await connect(process.env.MONGO_URL);
+        // Find the user in the database by email and password
+        const foundUser = await User.findOne({
+            email: user.email,
+            password: user.password,
+        });
+        if (foundUser) {
+            console.log(`User ${foundUser.firstName} ${foundUser.lastName} (${foundUser.email}) logged in successfully.`);
+            return foundUser; // Return the found user
+        }
+        else {
+            console.log("User not found or credentials are incorrect.");
+            return null;
+        }
+    }
+    catch (error) {
+        console.error("Error logging in user:", error);
+        throw new Error("Error logging in user");
+    }
+}
+export async function loginAdmin(admin) {
+    try {
+        await connect(process.env.MONGO_URL);
+        // Find the admin in the database by email and password
+        const foundAdmin = await Admin.findOne({
+            email: admin.email,
+            password: admin.password,
+        });
+        if (foundAdmin) {
+            console.log(`Admin ${foundAdmin.fullName} (${foundAdmin.email}) logged in successfully.`);
+            return foundAdmin; // Return the found admin
+        }
+        else {
+            console.log("Admin not found or credentials are incorrect.");
+            return null;
+        }
+    }
+    catch (error) {
+        console.error("Error logging in admin:", error);
+        throw new Error("Error logging in admin");
+    }
+}
 //# sourceMappingURL=helper.js.map
