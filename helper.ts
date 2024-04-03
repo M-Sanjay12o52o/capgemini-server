@@ -122,10 +122,10 @@ export async function loginUser(
     // Find the user in the database by email and password
     const foundUser = await User.findOne({
       email: user.email,
-      password: user.password,
+      // password: user.password,
     });
 
-    if (foundUser) {
+    if (foundUser && foundUser.password === user.password) {
       console.log(
         `User ${foundUser.firstName} ${foundUser.lastName} (${foundUser.email}) logged in successfully.`
       );

@@ -67,6 +67,8 @@ app.post("/users/signup", async (req, res) => {
 app.post("/users/login", async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
 
+  console.log("hello from users/login")
+
   try {
     // Construct an object to match the ContactUser interface
     const user = {
@@ -98,7 +100,7 @@ app.post("/admin/login", async (req, res) => {
     await loginAdmin(user); // Pass the user object
     res.status(201).json({ message: "user logged in successfully." });
   } catch (error) {
-    res.status(500).json({ error: "Failed to create user." });
+    res.status(500).json({ error: "Failed to login." });
   }
 });
 
